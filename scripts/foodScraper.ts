@@ -1,6 +1,6 @@
-const got = require("got");
-const dotenv = require("dotenv");
-const { Firestore } = require("@google-cloud/firestore");
+import got from "got";
+import dotenv from "dotenv";
+import { Firestore, FieldValue } from "@google-cloud/firestore";
 
 dotenv.config();
 
@@ -8,7 +8,7 @@ const config = process.env;
 
 const firestore = new Firestore();
 
-exports.foodScraper = async () => {
+const foodScraper = async () => {
   let request = await got(`${config.ISU_DINING_API_ENDPOINT}/get-locations/`);
   const locations = JSON.parse(request.body);
 
@@ -33,10 +33,11 @@ exports.foodScraper = async () => {
 
     foodItems.map(async (item) => {
       const foodItemRef = firestore.collection("food-items").doc(item.name);
-      const itemExists = foodItemRef.exists();
-      if (itemExists) {
+      const docSnapshot = await foodItemRef.get();
+
+      if (docSnapshot.exists) {
         await foodItemRef.update({
-          occurrences: firebase.firestore.FieldValue.increment(1),
+          occurrences: FieldValue.increment(1),
         });
         console.log(`Incremented ${item.name} occurrences by 1.`);
       } else {
@@ -55,3 +56,5 @@ const parseFoodItem = (item) => ({
   isVegan: item.isVegan == "1",
   traits: JSON.parse(item.traits),
 });
+
+export default foodScraper;
