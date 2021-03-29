@@ -9,4 +9,5 @@ module "food_scraper" {
   project              = var.project
   function_name        = "foodScraper"
   function_entry_point = "foodScraper"
+  ISU_DINING_API_ENDPOINT = var.ISU_DINING_API_ENDPOINT
 }
