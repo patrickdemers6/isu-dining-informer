@@ -1,3 +1,3 @@
-import foodScraper from "./foodScraper";
+const foodScraper = require("./foodScraper");
 
-export { foodScraper };
+exports.foodScraper = foodScraper;

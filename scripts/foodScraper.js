@@ -1,6 +1,6 @@
-import got from "got";
-import dotenv from "dotenv";
-import { Firestore } from "@google-cloud/firestore";
+const got = require("got");
+const dotenv = require("dotenv");
+const { Firestore } = require("@google-cloud/firestore");
 
 dotenv.config();
 
@@ -8,7 +8,7 @@ const config = process.env;
 
 const firestore = new Firestore();
 
-export const foodScraper = async () => {
+exports.foodScraper = async () => {
   let request = await got(`${config.ISU_DINING_API_ENDPOINT}/get-locations/`);
   const locations = JSON.parse(request.body);
 
