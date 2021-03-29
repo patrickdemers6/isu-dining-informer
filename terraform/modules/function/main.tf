@@ -1,6 +1,6 @@
 locals {
   timestamp = formatdate("YYMMDDhhmmss", timestamp())
-	root_dir = abspath("../")
+	root_dir = abspath("../scripts")
 }
 
 # Compress source code
