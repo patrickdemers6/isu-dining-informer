@@ -1,5 +1,5 @@
 import got from "got";
-import dotenv from "dotenv";
+import * as dotenv from "dotenv";
 import { Firestore, FieldValue } from "@google-cloud/firestore";
 
 dotenv.config();

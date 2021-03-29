@@ -30,6 +30,8 @@
   "dependencies": {
     "@google-cloud/firestore": "^4.9.8",
     "dotenv": "^8.2.0",
-    "got": "^11.8.2"
+    "got": "^11.8.2",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.2.3"
   }
 }
