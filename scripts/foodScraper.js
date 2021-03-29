@@ -26,7 +26,7 @@ exports.foodScraper = functions.https.onRequest(async (request, response) => {
   }
   const locations = JSON.parse(isuApiRequest.body);
 
-  locations.map(async (location) => {
+  locations.reduce(async (_, location) => {
     try {
       isuApiRequest = await got(
         `${config.ISU_DINING_API_ENDPOINT}get-single-location/?slug=${location.slug}`
@@ -42,30 +42,36 @@ exports.foodScraper = functions.https.onRequest(async (request, response) => {
         display.categories.map((category) => {
           category.menuItems.map((menuItem) => {
             const parsedFoodItem = parseFoodItem(menuItem);
-            if (foodItems.includes(parseFoodItem)) return;
-            foodItems.push(parsedFoodItem);
+            const key = generateKey(parsedFoodItem.name);
+
+            if (foodItems.includes(key)) return;
+            foodItems.push(key);
+            addFoodItem(parsedFoodItem);
           });
         });
       });
     });
-
-    foodItems.map(async (item) => {
-      const key = item.name.replace(/\W/g, "");
-      const foodItemRef = firestore.collection("food-items").doc(key);
-      const docSnapshot = await foodItemRef.get();
-
-      if (docSnapshot.exists) {
-        await foodItemRef.update({
-          occurrences: FieldValue.increment(1),
-        });
-        console.log(`Incremented ${item.name} occurrences by 1.`);
-      } else {
-        await foodItemRef.set({ ...item, occurrences: 1 });
-        console.log(`Created food: ${item.name}`);
-      }
-    });
+    return;
   });
 });
+
+const addFoodItem = async (item) => {
+  const key = generateKey(item.name);
+  const foodItemRef = firestore.collection("food-items").doc(key);
+  const docSnapshot = await foodItemRef.get();
+
+  if (docSnapshot.exists) {
+    await foodItemRef.update({
+      occurrences: FieldValue.increment(1),
+    });
+    console.log(`Incremented ${item.name} occurrences by 1.`);
+  } else {
+    await foodItemRef.set({ ...item, occurrences: 1 });
+    console.log(`Created food: ${item.name}`);
+  }
+};
+
+const generateKey = (name) => name.replace(/\W/g, "");
 
 const parseFoodItem = (item) => ({
   ...item,
