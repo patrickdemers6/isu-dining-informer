@@ -26,6 +26,8 @@ exports.foodScraper = functions.https.onRequest(async (request, response) => {
   }
   const locations = JSON.parse(isuApiRequest.body);
 
+  const foodItems = [];
+
   locations.reduce(async (_, location) => {
     try {
       isuApiRequest = await got(
@@ -36,7 +38,6 @@ exports.foodScraper = functions.https.onRequest(async (request, response) => {
     }
     const locationDetails = JSON.parse(isuApiRequest.body)[0];
 
-    const foodItems = [];
     locationDetails.menus.map((menu) => {
       menu.menuDisplays.map((display) => {
         display.categories.map((category) => {
