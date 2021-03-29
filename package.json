@@ -1,0 +1,36 @@
+{
+  "name": "isu-dining-informer",
+  "version": "1.0.0",
+  "description": "Automatically scrape Iowa State University dining menus, import the nutrition details to My Fitness Pal, and tweet about it. Created as a part of Major League Hacking: Share.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/patrickdemers6/isu-dining-informer.git"
+  },
+  "keywords": [
+    "MLH",
+    "ISU",
+    "Dining",
+    "Iowa",
+    "State",
+    "University",
+    "My",
+    "Fitness",
+    "Pal"
+  ],
+  "author": "Demers, Patrick",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/patrickdemers6/isu-dining-informer/issues"
+  },
+  "type": "module",
+  "homepage": "https://github.com/patrickdemers6/isu-dining-informer#readme",
+  "dependencies": {
+    "@google-cloud/firestore": "^4.9.8",
+    "dotenv": "^8.2.0",
+    "got": "^11.8.2"
+  }
+}

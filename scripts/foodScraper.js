@@ -1,0 +1,59 @@
+import got from "got";
+import dotenv from "dotenv";
+import { Firestore } from "@google-cloud/firestore";
+
+dotenv.config();
+
+const config = process.env;
+
+const firestore = new Firestore();
+
+export const foodScraper = async () => {
+  let request = await got(
+    "https://www.dining.iastate.edu/wp-json/dining/menu-hours/get-locations/"
+  );
+  const locations = JSON.parse(request.body);
+
+  locations.map(async (location, i) => {
+    request = await got(
+      `${config.ISU_DINING_API_ENDPOINT}get-single-location/?slug=${location.slug}`
+    );
+    const locationDetails = JSON.parse(request.body)[0];
+
+    const foodItems = [];
+    locationDetails.menus.map((menu) => {
+      menu.menuDisplays.map((display) => {
+        display.categories.map((category) => {
+          category.menuItems.map((menuItem) => {
+            const parsedFoodItem = parseFoodItem(menuItem);
+            if (foodItems.includes(parseFoodItem)) return;
+            foodItems.push(parsedFoodItem);
+          });
+        });
+      });
+    });
+
+    foodItems.map(async (item) => {
+      const foodItemRef = firestore.collection("food-items").doc(item.name);
+      const itemExists = foodItemRef.exists();
+      if (itemExists) {
+        await foodItemRef.update({
+          occurrences: firebase.firestore.FieldValue.increment(1),
+        });
+        console.log(`Incremented ${item.name} occurrences by 1.`);
+      } else {
+        await foodItemRef.set({ ...item, occurrences: 1 });
+        console.log(`Created food: ${item.name}`);
+      }
+    });
+  });
+};
+
+const parseFoodItem = (item) => ({
+  ...item,
+  totalCal: parseInt(item.totalCal),
+  isHalal: item.isHalal == "1",
+  isVegetarian: item.isVegetarian == "1",
+  isVegan: item.isVegan == "1",
+  traits: JSON.parse(item.traits),
+});
