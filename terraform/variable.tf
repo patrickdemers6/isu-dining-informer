@@ -4,6 +4,9 @@ variable "project" {
 variable "region" {
 	default = "us-central1"
 }
+variable "location" {
+	default = "us-central"
+}
 variable "GCP_APP_CREDS" {
 	default = ""
 }

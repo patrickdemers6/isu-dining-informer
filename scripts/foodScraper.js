@@ -1,6 +1,9 @@
-import got from "got";
-import * as dotenv from "dotenv";
-import { Firestore, FieldValue } from "@google-cloud/firestore";
+const got = require("got");
+const dotenv = require("dotenv");
+const { Firestore, FieldValue } = require("@google-cloud/firestore");
+const functions = require("firebase-functions");
+const admin = require("firebase-admin");
+admin.initializeApp();
 
 dotenv.config();
 
@@ -8,15 +11,30 @@ const config = process.env;
 
 const firestore = new Firestore();
 
-const foodScraper = async () => {
-  let request = await got(`${config.ISU_DINING_API_ENDPOINT}/get-locations/`);
-  const locations = JSON.parse(request.body);
+exports.foodScraper = functions.https.onRequest(async (request, response) => {
+  let isuApiRequest;
+  try {
+    isuApiRequest = await got(
+      `${config.ISU_DINING_API_ENDPOINT}get-locations/`
+    );
+  } catch (e) {
+    console.error(e);
+    return response.status(500).json({
+      status: "error",
+      message: "Failed to fetch ISU Dining locations.",
+    });
+  }
+  const locations = JSON.parse(isuApiRequest.body);
 
   locations.map(async (location) => {
-    request = await got(
-      `${config.ISU_DINING_API_ENDPOINT}get-single-location/?slug=${location.slug}`
-    );
-    const locationDetails = JSON.parse(request.body)[0];
+    try {
+      isuApiRequest = await got(
+        `${config.ISU_DINING_API_ENDPOINT}get-single-location/?slug=${location.slug}`
+      );
+    } catch (e) {
+      console.error(`Failed to fetch ${location.title} location details.`);
+    }
+    const locationDetails = JSON.parse(isuApiRequest.body)[0];
 
     const foodItems = [];
     locationDetails.menus.map((menu) => {
@@ -32,7 +50,8 @@ const foodScraper = async () => {
     });
 
     foodItems.map(async (item) => {
-      const foodItemRef = firestore.collection("food-items").doc(item.name);
+      const key = item.name.replace(/\W/g, "");
+      const foodItemRef = firestore.collection("food-items").doc(key);
       const docSnapshot = await foodItemRef.get();
 
       if (docSnapshot.exists) {
@@ -46,7 +65,7 @@ const foodScraper = async () => {
       }
     });
   });
-};
+});
 
 const parseFoodItem = (item) => ({
   ...item,
@@ -56,5 +75,3 @@ const parseFoodItem = (item) => ({
   isVegan: item.isVegan == "1",
   traits: JSON.parse(item.traits),
 });
-
-export default foodScraper;
