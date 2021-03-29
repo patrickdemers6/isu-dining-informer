@@ -42,7 +42,7 @@ resource "google_project_service" "cb" {
 }
 
 # Create Cloud Function
-resource "google_cloudfunctions_function" "function" {
+resource "google_cloudfunctions_function" "foodScraper" {
   name    = var.function_name
   runtime = "nodejs12"
 
@@ -51,4 +51,8 @@ resource "google_cloudfunctions_function" "function" {
   source_archive_object = google_storage_bucket_object.zip.name
   trigger_http          = true
   entry_point           = var.function_entry_point
+
+  environment_variables = {
+    "ISU_DINING_API_ENDPOINT" = var.ISU_DINING_API_ENDPOINT
+  }
 }

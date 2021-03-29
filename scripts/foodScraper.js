@@ -9,12 +9,10 @@ const config = process.env;
 const firestore = new Firestore();
 
 export const foodScraper = async () => {
-  let request = await got(
-    "https://www.dining.iastate.edu/wp-json/dining/menu-hours/get-locations/"
-  );
+  let request = await got(`${config.ISU_DINING_API_ENDPOINT}/get-locations/`);
   const locations = JSON.parse(request.body);
 
-  locations.map(async (location, i) => {
+  locations.map(async (location) => {
     request = await got(
       `${config.ISU_DINING_API_ENDPOINT}get-single-location/?slug=${location.slug}`
     );

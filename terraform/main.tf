@@ -7,6 +7,6 @@ provider "google" {
 module "food_scraper" {
   source               = "./modules/function"
   project              = var.project
-  function_name        = "food_scraper"
+  function_name        = "foodScraper"
   function_entry_point = "foodScraper"
 }
