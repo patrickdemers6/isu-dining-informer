@@ -26,7 +26,7 @@
   "bugs": {
     "url": "https://github.com/patrickdemers6/isu-dining-informer/issues"
   },
-  "type": "module",
+  "type": "commonjs",
   "homepage": "https://github.com/patrickdemers6/isu-dining-informer#readme",
   "dependencies": {
     "@google-cloud/firestore": "^4.9.8",
